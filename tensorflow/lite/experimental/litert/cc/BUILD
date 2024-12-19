@@ -18,9 +18,26 @@ package(
 )
 
 cc_library(
+    name = "litert_environment",
+    hdrs = ["litert_environment.h"],
+    deps = [
+        ":litert_any",
+        ":litert_expected",
+        "//tensorflow/lite/experimental/litert/c:litert_common",
+        "//tensorflow/lite/experimental/litert/c:litert_environment",
+        "@com_google_absl//absl/types:span",
+    ],
+)
+
+cc_library(
     name = "litert_any",
     hdrs = ["litert_any.h"],
-    deps = ["//tensorflow/lite/experimental/litert/c:litert_common"],
+    deps = [
+        ":litert_expected",
+        "//tensorflow/lite/experimental/litert/c:litert_any",
+        "//tensorflow/lite/experimental/litert/c:litert_common",
+        "@com_google_absl//absl/strings:string_view",
+    ],
 )
 
 cc_test(
@@ -28,6 +45,10 @@ cc_test(
     srcs = [
         "litert_any_test.cc",
     ],
+    linkopts = select({
+        "//tensorflow:android": ["-llog"],
+        "//conditions:default": [],
+    }),
     deps = [
         ":litert_any",
         "//tensorflow/lite/experimental/litert/c:litert_common",
@@ -38,7 +59,10 @@ cc_test(
 cc_library(
     name = "litert_model",
     srcs = ["litert_model.cc"],
-    hdrs = ["litert_model.h"],
+    hdrs = [
+        "litert_consts.h",
+        "litert_model.h",
+    ],
     deps = [
         ":litert_buffer_ref",
         ":litert_detail",
@@ -48,7 +72,7 @@ cc_library(
         ":litert_layout",
         "//tensorflow/lite/experimental/litert/c:litert_common",
         "//tensorflow/lite/experimental/litert/c:litert_model",
-        "@com_google_absl//absl/strings:str_format",
+        "@com_google_absl//absl/container:inlined_vector",
         "@com_google_absl//absl/strings:string_view",
         "@com_google_absl//absl/types:span",
     ],
@@ -204,7 +228,6 @@ cc_library(
     hdrs = ["litert_detail.h"],
     deps = [
         "//tensorflow/lite/experimental/litert/c:litert_common",
-        "@com_google_absl//absl/container:inlined_vector",
         "@com_google_absl//absl/log:absl_check",
     ],
 )
@@ -304,10 +327,11 @@ cc_library(
         "//tensorflow/lite/core:cc_api_stable",
         "//tensorflow/lite/experimental/litert/c:litert_common",
         "//tensorflow/lite/experimental/litert/c:litert_compiled_model",
+        "//tensorflow/lite/experimental/litert/c:litert_compiled_model_options",
         "//tensorflow/lite/experimental/litert/c:litert_model",
         "//tensorflow/lite/experimental/litert/c:litert_tensor_buffer",
-        "//tensorflow/lite/experimental/litert/runtime:tfl_utils",
         "//tensorflow/lite/kernels:builtin_ops",
+        "@com_google_absl//absl/container:flat_hash_map",
         "@com_google_absl//absl/strings:string_view",
     ],
 )
@@ -321,14 +345,19 @@ cc_test(
     deps = [
         ":litert_compiled_model",
         ":litert_model",
+        ":litert_tensor_buffer",
         "//tensorflow/lite:framework",
         "//tensorflow/lite/c:c_api_opaque",
         "//tensorflow/lite/c:common",
         "//tensorflow/lite/experimental/litert/test:common",
+        "//tensorflow/lite/experimental/litert/test:simple_model",
         "//tensorflow/lite/kernels:builtin_ops",
+        "@com_google_absl//absl/container:flat_hash_map",
         "@com_google_absl//absl/log:absl_log",
         "@com_google_absl//absl/strings:string_view",
         "@com_google_absl//absl/types:span",
         "@com_google_googletest//:gtest_main",
     ],
 )
+
+exports_files(srcs = glob(["litert_*.h"]))
