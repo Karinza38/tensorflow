@@ -876,6 +876,7 @@ pywrap_tensorflow_macro(
         # be brought in via other dependencies.
         "@local_xla//xla/tsl/cuda:cudnn",
         "@local_xla//xla/tsl/cuda:cufft",
+        "@local_xla//xla/tsl/cuda:cupti",
         "@local_xla//xla/tsl/cuda:nccl_rpath",
     ])) + if_xla_available([
         "//tensorflow/compiler/aot:tfcompile_lib",
@@ -1510,7 +1511,6 @@ pywrap_library(
         "//tensorflow/compiler/mlir/quantization/stablehlo/python:pywrap_quantization",
         "//tensorflow/compiler/mlir/quantization/tensorflow/python:pywrap_function_lib",
         "//tensorflow/compiler/mlir/quantization/tensorflow/python:pywrap_quantize_model",
-        "//tensorflow/compiler/mlir/stablehlo:stablehlo_extension",
         "//tensorflow/compiler/mlir/tfr:tfr_wrapper",
         "//tensorflow/compiler/tf2tensorrt:_pywrap_py_utils",
         "//tensorflow/lite/python/analyzer_wrapper:_pywrap_analyzer_wrapper",

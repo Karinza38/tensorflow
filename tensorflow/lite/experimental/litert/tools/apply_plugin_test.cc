@@ -103,9 +103,9 @@ TEST(TestApplyPluginTool, TestNoop) {
   run->outs.push_back(out);
   LITERT_ASSERT_STATUS_OK(ApplyPlugin(std::move(run)));
 
-  auto model = Model::LoadFromBuffer(
+  auto model = Model::CreateFromBuffer(
       BufferRef<uint8_t>(out.view().data(), out.view().size()));
-  EXPECT_EQ(model->Get()->subgraphs.size(), 1);
+  EXPECT_EQ(model->Get()->NumSubgraphs(), 1);
 }
 
 TEST(TestApplyPluginTool, TestPartitionBadConfig) {
@@ -152,9 +152,9 @@ TEST(TestApplyPluginTool, TestApply) {
   run->outs.push_back(out);
   LITERT_ASSERT_STATUS_OK(ApplyPlugin(std::move(run)));
 
-  auto model = Model::LoadFromBuffer(
+  auto model = Model::CreateFromBuffer(
       BufferRef<uint8_t>(out.str().data(), out.str().size()));
-  EXPECT_EQ(model->Get()->subgraphs.size(), 1);
+  EXPECT_EQ(model->Get()->NumSubgraphs(), 1);
 
   {
     auto stamp_buffer = model->Get()->FindMetadata(kLiteRtBuildStampKey);
@@ -166,9 +166,9 @@ TEST(TestApplyPluginTool, TestApply) {
   }
 
   {
-    auto custom_op = model->Get()->subgraphs.front().ops.front();
-    ASSERT_EQ(custom_op->op_code, kLiteRtOpCodeTflCustom);
-    EXPECT_EQ(custom_op->custom_options.StrView(), "Partition_0");
+    const auto& custom_op = model->Get()->Subgraph(0).Op(0);
+    ASSERT_EQ(custom_op.OpCode(), kLiteRtOpCodeTflCustom);
+    EXPECT_THAT(custom_op.CustomOptions().StrView(), HasSubstr("Partition_0"));
   }
 
   {
@@ -193,8 +193,8 @@ TEST(TestApplyPluginTool, TestApplyWithAppendSerialization) {
 
   BufferRef<uint8_t> serialized(out.str().data(), out.str().size());
 
-  auto model = Model::LoadFromBuffer(serialized);
-  EXPECT_EQ(model->Get()->subgraphs.size(), 1);
+  auto model = Model::CreateFromBuffer(serialized);
+  EXPECT_EQ(model->Get()->NumSubgraphs(), 1);
 
   {
     auto stamp_buffer = model->Get()->FindMetadata(kLiteRtBuildStampKey);
@@ -206,10 +206,10 @@ TEST(TestApplyPluginTool, TestApplyWithAppendSerialization) {
   }
 
   {
-    auto custom_op = model->Get()->subgraphs.front().ops.front();
-    ASSERT_EQ(custom_op->op_code, kLiteRtOpCodeTflCustom);
+    const auto& custom_op = model->Get()->Subgraph(0).Op(0);
+    ASSERT_EQ(custom_op.OpCode(), kLiteRtOpCodeTflCustom);
 
-    auto options = ParseExecInfo(custom_op->custom_options);
+    auto options = ParseExecInfo(custom_op.CustomOptions());
     auto [entry_point, metadata_key] = *options;
     EXPECT_EQ(entry_point, "Partition_0");
 

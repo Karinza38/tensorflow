@@ -169,6 +169,7 @@ class Literal:
   def __array__(
       self, dtype: Optional[np.dtype] = None, copy: Optional[bool] = None
   ) -> np.ndarray: ...
+  def shape(self) -> Shape: ...
 
 class XlaComputation:
   def __init__(self, serialized_hlo_module_proto: bytes) -> None: ...
@@ -373,6 +374,18 @@ class PrecisionConfig_Precision(enum.IntEnum):
   DEFAULT: int
   HIGH: int
   HIGHEST: int
+
+
+class ResultAccuracy_Mode(enum.IntEnum):
+  DEFAULT: int
+  HIGHEST: int
+  TOLERANCE: int
+
+class ResultAccuracy:
+  mode: ResultAccuracy_Mode
+  atol: float
+  rtol: float
+  ulps: int
 
 class OpSharding_Type(enum.IntEnum):
   REPLICATED: int
