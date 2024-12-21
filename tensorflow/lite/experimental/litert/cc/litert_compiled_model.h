@@ -19,9 +19,11 @@
 #include <string>
 #include <vector>
 
+#include "absl/container/flat_hash_map.h"
 #include "absl/strings/string_view.h"
 #include "tensorflow/lite/experimental/litert/c/litert_common.h"
 #include "tensorflow/lite/experimental/litert/c/litert_compiled_model.h"
+#include "tensorflow/lite/experimental/litert/c/litert_compiled_model_options.h"
 #include "tensorflow/lite/experimental/litert/c/litert_model.h"
 #include "tensorflow/lite/experimental/litert/c/litert_tensor_buffer_requirements.h"
 #include "tensorflow/lite/experimental/litert/cc/litert_detail.h"
@@ -65,11 +67,12 @@ class CompiledModel
   // Creates a CompiledModel from a TFLite file.
   // The model is loaded into memory and the caller takes ownership of the
   // returned object.
-  // WARNING: The created CompiledModel only runs with Xnnpack delegate for now.
-  // TODO: b/379317134 - Add support for compilation options.
-  static Expected<CompiledModel> Create(litert::Model& model) {
+  static Expected<CompiledModel> Create(
+      litert::Model& model,
+      LiteRtCompilationOptions compilation_options = kLiteRtHwAccelatorNone) {
     LiteRtCompiledModel compiled_model;
-    if (auto status = LiteRtCreateCompiledModel(model.Get(), &compiled_model);
+    if (auto status = LiteRtCreateCompiledModel(
+            model.Get(), compilation_options, &compiled_model);
         status != kLiteRtStatusOk) {
       return Unexpected(status, "Failed to create compiled model");
     }
@@ -121,6 +124,13 @@ class CompiledModel
   Expected<void> Run(size_t signature_index,
                      const std::vector<TensorBuffer>& input_buffers,
                      const std::vector<TensorBuffer>& output_buffers);
+
+  // Runs the model of the given signature with the provided input/output
+  // TensorBuffer map.
+  Expected<void> Run(
+      size_t signature_index,
+      const absl::flat_hash_map<absl::string_view, TensorBuffer>& input_map,
+      const absl::flat_hash_map<absl::string_view, TensorBuffer>& output_map);
 
  private:
   Model* model_;

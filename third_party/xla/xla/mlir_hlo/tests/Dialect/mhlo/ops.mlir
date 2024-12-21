@@ -2920,6 +2920,18 @@ func.func @reshape_invalid_shapes(%operand: tensor<2x4xf32>) -> tensor<3x3xf32> 
 
 // -----
 
+// CHECK-LABEL: func @reshape_can_have_dynamic_dimensions
+func.func @reshape_can_have_dynamic_dimensions() -> tensor<?xi64, #mhlo.type_extensions<bounds = [7]>> {
+    %0 = "mhlo.constant"() {value = dense<[[1],[2],[3],[4],[5],[6],[7]]> : tensor<7x1xi64>} : () -> tensor<7x1xi64>
+    %size = builtin.unrealized_conversion_cast to tensor<i32>
+    %1 = "mhlo.set_dimension_size"(%0, %size) <{dimension = 0 : i64}> : (tensor<7x1xi64>, tensor<i32>) -> tensor<?x1xi64, #mhlo.type_extensions<bounds = [7, ?]>>
+    %2 = "mhlo.reshape"(%1) : (tensor<?x1xi64, #mhlo.type_extensions<bounds = [7, ?]>>)
+        -> tensor<?xi64, #mhlo.type_extensions<bounds = [7]>>
+    return %2 : tensor<?xi64, #mhlo.type_extensions<bounds = [7]>>
+}
+
+// -----
+
 // CHECK-LABEL: func @reverse
 func.func @reverse(%operand: tensor<3x2xi32>) -> tensor<3x2xi32> {
   %0 = "mhlo.reverse"(%operand) {
@@ -6832,6 +6844,13 @@ func.func @invalid_dimension_attr(%arg0: tensor<?x?xf32, #mhlo.type_extensions<b
 
 // -----
 
+func.func @f4e2m1fn(%arg0: tensor<f16>) -> tensor<f4E2M1FN> {
+  %0 = "mhlo.convert"(%arg0) : (tensor<f16>) -> tensor<f4E2M1FN>
+  func.return %0 : tensor<f4E2M1FN>
+}
+
+// -----
+
 func.func @f8e3m4(%arg0: tensor<f16>) -> tensor<f8E3M4> {
   %0 = "mhlo.convert"(%arg0) : (tensor<f16>) -> tensor<f8E3M4>
   func.return %0 : tensor<f8E3M4>
@@ -6856,6 +6875,13 @@ func.func @f8e4m3fn(%arg0: tensor<f16>) -> tensor<f8E4M3FN> {
 func.func @f8e5m2(%arg0: tensor<f16>) -> tensor<f8E5M2> {
   %0 = "mhlo.convert"(%arg0) : (tensor<f16>) -> tensor<f8E5M2>
   func.return %0 : tensor<f8E5M2>
+}
+
+// -----
+
+func.func @f8e8m0fnu(%arg0: tensor<f16>) -> tensor<f8E8M0FNU> {
+  %0 = "mhlo.convert"(%arg0) : (tensor<f16>) -> tensor<f8E8M0FNU>
+  func.return %0 : tensor<f8E8M0FNU>
 }
 
 // -----

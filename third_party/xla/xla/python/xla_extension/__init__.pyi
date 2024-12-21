@@ -74,6 +74,7 @@ class PrimitiveType(enum.IntEnum):
   U16: PrimitiveType
   U32: PrimitiveType
   U64: PrimitiveType
+  F4E2M1FN: PrimitiveType
   F8E3M4: PrimitiveType
   F8E4M3: PrimitiveType
   F8E4M3FN: PrimitiveType
@@ -81,6 +82,7 @@ class PrimitiveType(enum.IntEnum):
   F8E4M3FNUZ: PrimitiveType
   F8E5M2: PrimitiveType
   F8E5M2FNUZ: PrimitiveType
+  F8E8M0FNU: PrimitiveType
   BF16: PrimitiveType
   F16: PrimitiveType
   F32: PrimitiveType
@@ -169,6 +171,7 @@ class Literal:
   def __array__(
       self, dtype: Optional[np.dtype] = None, copy: Optional[bool] = None
   ) -> np.ndarray: ...
+  def shape(self) -> Shape: ...
 
 class XlaComputation:
   def __init__(self, serialized_hlo_module_proto: bytes) -> None: ...
@@ -373,6 +376,18 @@ class PrecisionConfig_Precision(enum.IntEnum):
   DEFAULT: int
   HIGH: int
   HIGHEST: int
+
+
+class ResultAccuracy_Mode(enum.IntEnum):
+  DEFAULT: int
+  HIGHEST: int
+  TOLERANCE: int
+
+class ResultAccuracy:
+  mode: ResultAccuracy_Mode
+  atol: float
+  rtol: float
+  ulps: int
 
 class OpSharding_Type(enum.IntEnum):
   REPLICATED: int
