@@ -17,15 +17,22 @@
 #include <stddef.h>
 
 #include "tensorflow/lite/experimental/litert/c/litert_common.h"
+#include "tensorflow/lite/experimental/litert/c/litert_compiled_model_options.h"
 #include "tensorflow/lite/experimental/litert/c/litert_logging.h"
 #include "tensorflow/lite/experimental/litert/c/litert_model.h"
 #include "tensorflow/lite/experimental/litert/c/litert_tensor_buffer.h"
 #include "tensorflow/lite/experimental/litert/c/litert_tensor_buffer_requirements.h"
 #include "tensorflow/lite/experimental/litert/runtime/compiled_model.h"
 
-LiteRtStatus LiteRtCreateCompiledModel(LiteRtModel model,
-                                       LiteRtCompiledModel* compiled_model) {
-  auto created_compiled_model = LiteRtCompiledModelT::Create(model);
+LiteRtStatus LiteRtCreateCompiledModel(
+    LiteRtModel model, LiteRtCompilationOptions compilation_options,
+    LiteRtCompiledModel* compiled_model) {
+  if (!model || !compiled_model) {
+    return kLiteRtStatusErrorInvalidArgument;
+  }
+
+  auto created_compiled_model =
+      LiteRtCompiledModelT::Create(model, compilation_options);
   if (!created_compiled_model) {
     LITERT_LOG(LITERT_ERROR, "%s",
                created_compiled_model.Error().Message().data());
@@ -39,6 +46,10 @@ LiteRtStatus LiteRtGetCompiledModelInputBufferRequirements(
     LiteRtCompiledModel compiled_model, LiteRtParamIndex signature_index,
     LiteRtParamIndex input_index,
     LiteRtTensorBufferRequirements* buffer_requirements) {
+  if (!compiled_model || !buffer_requirements) {
+    return kLiteRtStatusErrorInvalidArgument;
+  }
+
   auto res = compiled_model->GetInputBufferRequirementsCApi(signature_index,
                                                             input_index);
   if (!res) {
@@ -53,6 +64,10 @@ LiteRtStatus LiteRtGetCompiledModelOutputBufferRequirements(
     LiteRtCompiledModel compiled_model, LiteRtParamIndex signature_index,
     LiteRtParamIndex output_index,
     LiteRtTensorBufferRequirements* buffer_requirements) {
+  if (!compiled_model || !buffer_requirements) {
+    return kLiteRtStatusErrorInvalidArgument;
+  }
+
   auto res = compiled_model->GetOutputBufferRequirementsCApi(signature_index,
                                                              output_index);
   if (!res) {
@@ -69,6 +84,11 @@ LiteRtStatus LiteRtRunCompiledModel(LiteRtCompiledModel compiled_model,
                                     LiteRtTensorBuffer* input_buffers,
                                     size_t num_output_buffers,
                                     LiteRtTensorBuffer* output_buffers) {
+  if (!compiled_model || (num_input_buffers > 0 && !input_buffers) ||
+      (num_output_buffers > 0 && !output_buffers)) {
+    return kLiteRtStatusErrorInvalidArgument;
+  }
+
   auto res =
       compiled_model->RunCApi(signature_index, num_input_buffers, input_buffers,
                               num_output_buffers, output_buffers);

@@ -178,6 +178,7 @@ cc_library(
         "@llvm-project//llvm:Support",
         "@local_tsl//tsl/platform:casts",
         "@local_tsl//tsl/platform:statusor",
+        "@local_tsl//tsl/profiler/lib:traceme",
     ],
 )
 
@@ -250,11 +251,13 @@ cc_library(
         "@com_google_absl//absl/status:statusor",
         "@com_google_absl//absl/strings",
         "@com_google_absl//absl/strings:cord",
+        "@com_google_absl//absl/strings:str_format",
         "@com_google_absl//absl/types:optional",
         "@com_google_absl//absl/types:span",
         "@llvm-project//llvm:Support",
         "@local_tsl//tsl/platform:errors",
         "@local_tsl//tsl/platform:statusor",
+        "@local_tsl//tsl/profiler/lib:traceme",
     ],
 )
 
@@ -331,6 +334,7 @@ cc_library(
         "@llvm-project//llvm:Support",
         "@local_tsl//tsl/platform:status_to_from_proto",
         "@local_tsl//tsl/platform:statusor",
+        "@local_tsl//tsl/profiler/lib:traceme",
     ],
 )
 
@@ -405,6 +409,7 @@ cc_library(
         "@local_tsl//tsl/platform:protobuf",
         "@local_tsl//tsl/platform:status_to_from_proto",
         "@local_tsl//tsl/platform:statusor",
+        "@local_tsl//tsl/profiler/lib:traceme",
     ],
 )
 

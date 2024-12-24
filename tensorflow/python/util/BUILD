@@ -148,6 +148,7 @@ tf_python_pybind_extension(
     deps = [
         "//tensorflow/core:framework_headers_lib",
         "//tensorflow/core:lib_headers_for_pybind",
+        "//tensorflow/core:portable_gif_internal",
         "//tensorflow/core:protos_all_cc",
         "//tensorflow/python/lib/core:pybind11_lib",
         "//third_party/python_runtime:headers",
@@ -233,6 +234,7 @@ tf_python_pybind_extension(
         "//tensorflow/core/platform:errors",
         "//tensorflow/core/platform:status",
         "//tensorflow/python/lib/core:pybind11_status",
+        "@com_google_absl//absl/status",
         "@pybind11",
     ] + if_pywrap(["//tensorflow/tools/graph_transforms:transform_graph_lib"]),
 )
@@ -837,7 +839,13 @@ py_strict_library(
 py_strict_library(
     name = "lazy_loader",
     srcs = ["lazy_loader.py"],
-    visibility = util_subpackage_visibility,
+    # copybara:uncomment_begin(google-only)
+    # visibility = util_subpackage_visibility,
+    # copybara:uncomment_end_and_comment_begin
+    visibility = [
+        "//visibility:public",
+    ],
+    # copybara:comment_end
     deps = [
         "//tensorflow/python/platform:tf_logging",
         # global_test_configuration is added here because all major tests depend on this
@@ -1063,7 +1071,13 @@ py_strict_library(
 py_strict_library(
     name = "dispatch",
     srcs = ["dispatch.py"],
-    visibility = util_subpackage_visibility,
+    # copybara:uncomment_begin(google-only)
+    # visibility = util_subpackage_visibility,
+    # copybara:uncomment_end_and_comment_begin
+    visibility = [
+        "//visibility:public",
+    ],
+    # copybara:comment_end
     deps = [
         ":tf_decorator_py",
         ":tf_inspect",
